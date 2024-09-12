@@ -1,5 +1,7 @@
-## Wheather App with react.js to display weather info
-Live Link : https://ahmed-eltohfa.github.io/React-Weather-App/ 
+## Wheather App with react.js to display weather info ##
+
+Live Link : https://ahmed-eltohfa.github.io/React-Weather-App/
+
 technologies used : 
 * HTML
 * Css

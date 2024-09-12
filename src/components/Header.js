@@ -10,7 +10,7 @@ function Header() {
     const weather = useSelector(state => state.weather)
     const dispatch = useDispatch();
     function generateLink(city) {
-        return `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=yes`
+        return `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=yes`
     }
 
     useEffect(() => {

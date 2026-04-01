@@ -1,12 +1,23 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-
-export const fetchWeather = createAsyncThunk('weatherSlice/fetchweather', async (url) => {
-    const res = await fetch(`${url}`);
-    const data = await res.json();
-    // console.log(data);
-    return data;
-})
+export const fetchWeather = createAsyncThunk(
+    'weatherSlice/fetchweather',
+    async (url, { rejectWithValue }) => {
+        try {
+            const res = await fetch(`${url}`);
+            if (!res.ok) {
+                throw new Error(`API error: ${res.status}`);
+            }
+            const data = await res.json();
+            if (data.error) {
+                throw new Error(data.error.message);
+            }
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
 
 const init = {
     "location": {
@@ -26,7 +37,7 @@ const init = {
         "temp_f": 59,
         "is_day": 0,
         "condition": {
-            "text": "cloudy",
+            "text": "Cloudy",
             "icon": "//cdn.weatherapi.com/weather/64x64/night/116.png",
             "code": 1003
         },
@@ -64,24 +75,42 @@ const init = {
             "gb-defra-index": 3
         }
     }
-}
+};
 
 export const weatherSlice = createSlice({
-    initialState: init,
+    initialState: {
+        data: init,
+        loading: false,
+        error: null,
+    },
     name: 'weatherSlice',
     reducers: {
         setWeather: (state, action) => {
-            // console.log(state)
-            return state = action.payload;
-        }
+            state.data = action.payload;
+            state.error = null;
+        },
+        clearError: (state) => {
+            state.error = null;
+        },
     },
     extraReducers: (builder) => {
-        builder.addCase(fetchWeather.fulfilled, (state, action) => {
-            return state = action.payload;
-        })
+        builder
+            .addCase(fetchWeather.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchWeather.fulfilled, (state, action) => {
+                state.loading = false;
+                state.data = action.payload;
+                state.error = null;
+            })
+            .addCase(fetchWeather.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || 'Failed to fetch weather';
+            });
     }
-})
+});
 
-export const { setWeather } = weatherSlice.actions
+export const { setWeather, clearError } = weatherSlice.actions;
 
-export default weatherSlice.reducer
+export default weatherSlice.reducer;
